@@ -78,6 +78,7 @@ namespace Lostbyte.Toolkit.FactSystem
                 var wrapper = fact.GetValueWrapper();
                 wrapper.RawValue = dict.TryGetValue(fact.Guid, out var v) ? v : ApplyValueOverride(fact, wrapper.RawValue);
                 _factStorage[fact] = wrapper;
+                wrapper.Subscribe(RaiseChange);
             }
             _eventStorage.Clear();
             foreach (var @event in Events)
@@ -90,7 +91,8 @@ namespace Lostbyte.Toolkit.FactSystem
         {
             Dictionary<string, object> dict = new();
             foreach (var key in Children)
-                dict[key.Guid] = key.Save();
+                if (key.IsSerializable)
+                    dict[key.Guid] = key.Save();
             foreach ((var fact, var wrapper) in _factStorage)
                 if (fact.IsSerializable)
                     dict[fact.Guid] = wrapper.RawValue;
@@ -107,7 +109,7 @@ namespace Lostbyte.Toolkit.FactSystem
         public void AddOnFactAddedListener(Action<FactDefinition> callback) => OnFactAdded += callback;
         public void RemoveOnFactAddedListener(Action<FactDefinition> callback) => OnFactAdded += callback;
         public void AddOnChangeListener(Action callback) => OnChange += callback;
-        public void RemoveOnChangeListener(Action callback) => OnChange += callback;
+        public void RemoveOnChangeListener(Action callback) => OnChange -= callback;
         public void Subscribe(FactDefinition fact, Action<object> callback) => GetWrapper(fact).Subscribe(callback);
         public void Unsubscribe(FactDefinition fact, Action<object> callback) => GetWrapper(fact).Unsubscribe(callback);
         public void Subscribe(FactDefinition fact, Action callback) => GetWrapper(fact).Subscribe(callback);
@@ -120,13 +122,14 @@ namespace Lostbyte.Toolkit.FactSystem
         public void Unsubscribe<T>(FactDefinition<T> fact, Action<T, T> callback) => GetWrapper(fact).Unsubscribe(callback);
         public void Subscribe(EventDefinition @event, Action callback) => GetWrapper(@event).Subscribe(callback);
         public void Unsubscribe(EventDefinition @event, Action callback) => GetWrapper(@event).Unsubscribe(callback);
+        private void RaiseChange() => OnChange?.Invoke();
         public IFactWrapper<T> GetWrapper<T>(FactDefinition<T> fact)
         {
             if (_factStorage.TryGetValue(fact, out var wrapperRaw) == false || wrapperRaw is not IFactWrapper<T> wrapper)
             {
                 wrapper = (IFactWrapper<T>)fact.GetValueWrapper();
                 _factStorage[fact] = wrapper;
-                wrapper.Subscribe(OnChange);
+                wrapper.Subscribe(RaiseChange);
                 OnFactAdded?.Invoke(fact);
             }
             return wrapper;
@@ -137,7 +140,7 @@ namespace Lostbyte.Toolkit.FactSystem
             {
                 wrapper = fact.GetValueWrapper();
                 _factStorage[fact] = wrapper;
-                wrapper.Subscribe(OnChange);
+                wrapper.Subscribe(RaiseChange);
                 OnFactAdded?.Invoke(fact);
             }
             return wrapper;
@@ -168,7 +171,7 @@ namespace Lostbyte.Toolkit.FactSystem
                 {
                     wrapper = fact.GetValueWrapper();
                     _factStorage[fact] = wrapper;
-                    wrapper.Subscribe(OnChange);
+                    wrapper.Subscribe(RaiseChange);
                     OnFactAdded?.Invoke(fact);
                 }
                 return wrapper;

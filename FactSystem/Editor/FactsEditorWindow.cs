@@ -293,7 +293,7 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
 
         private void SaveTreeViewState()
         {
-            if (_treeView != null && string.IsNullOrWhiteSpace(_filter) && _view == 0)
+            if (_treeView != null && string.IsNullOrWhiteSpace(_filter))
             {
                 var collapsed = new List<string>();
                 var controller = _treeView.viewController;

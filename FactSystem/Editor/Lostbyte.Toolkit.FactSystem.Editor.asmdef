@@ -2,8 +2,7 @@
     "name": "Lostbyte.Toolkit.FactSystem.Editor",
     "rootNamespace": "Lostbyte.Toolkit.FactSystem.Editor",
     "references": [
-        "GUID:819f06a97acecf147923817da11f64ef",
-        "GUID:54cb1906aeb4e4264bc1d2aa3818a43f"
+        "GUID:819f06a97acecf147923817da11f64ef"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

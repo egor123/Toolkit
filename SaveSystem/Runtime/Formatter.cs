@@ -1,6 +1,8 @@
+using System;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace Lostbyte.Toolkit.SaveSystem
 {
@@ -11,7 +13,7 @@ namespace Lostbyte.Toolkit.SaveSystem
             BinaryFormatter formatter = new();
             SurrogateSelector selector = new();
             selector.AddSurrogate(typeof(Color), new StreamingContext(StreamingContextStates.All), new ColorSerializationSurrogate());
-            // selector.AddSurrogate(typeof(LocalizedString), new StreamingContext(StreamingContextStates.All), new LocalizedStringSurrogate());
+            selector.AddSurrogate(typeof(LocalizedString), new StreamingContext(StreamingContextStates.All), new LocalizedStringSurrogate());
 
             formatter.SurrogateSelector = selector;
             return formatter;
@@ -38,26 +40,26 @@ namespace Lostbyte.Toolkit.SaveSystem
             return color;
         }
     }
-    // public class LocalizedStringSurrogate : ISerializationSurrogate
-    // {
-    //     public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
-    //     {
-    //         LocalizedString localizedString = (LocalizedString)obj;
-    //         localizedString.GetLocalizedString();
-    //         info.AddValue("tableReference", localizedString.TableReference.TableCollectionNameGuid.ToString());
-    //         info.AddValue("entryReference", localizedString.TableEntryReference.KeyId);
-    //     }
+    public class LocalizedStringSurrogate : ISerializationSurrogate
+    {
+        public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+        {
+            LocalizedString localizedString = (LocalizedString)obj;
+            localizedString.GetLocalizedString();
+            info.AddValue("tableReference", localizedString.TableReference.TableCollectionNameGuid.ToString());
+            info.AddValue("entryReference", localizedString.TableEntryReference.KeyId);
+        }
 
-    //     public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
-    //     {
-    //         // LocalizedString localizedString = (LocalizedString)obj;
-    //         LocalizedString localizedString = new(Guid.Parse(info.GetString("tableReference")), info.GetInt64("entryReference"));
-    //         // {
-    //         //     TableReference = Guid.Parse(info.GetString("tableReference")),
-    //         //     TableEntryReference = info.GetInt64("entryReference")
-    //         // };
-    //         // //FIXME now it displays properly in inspector, but "System.NullReferenceException: Object reference not set to an instance of an object" when it isused
-    //         return localizedString;
-    //     }
-    // }
+        public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+        {
+            // LocalizedString localizedString = (LocalizedString)obj;
+            LocalizedString localizedString = new(Guid.Parse(info.GetString("tableReference")), info.GetInt64("entryReference"));
+            // {
+            //     TableReference = Guid.Parse(info.GetString("tableReference")),
+            //     TableEntryReference = info.GetInt64("entryReference")
+            // };
+            // //FIXME now it displays properly in inspector, but "System.NullReferenceException: Object reference not set to an instance of an object" when it isused
+            return localizedString;
+        }
+    }
 }

@@ -5,8 +5,8 @@ namespace Lostbyte.Toolkit.FactSystem
     internal class FactValueWrapper<T> : IFactWrapper<T>
     {
         private Action OnChange;
-        private Action<T> OnChangeNew;
         private Action<object> OnChangeRaw;
+        private Action<T> OnChangeNew;
         private Action<T, T> OnChangeOldNew;
         private T _value = default;
         public FactValueWrapper(T defaultValue) => _value = defaultValue;

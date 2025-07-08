@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Lostbyte.Toolkit.SaveSystem
@@ -14,20 +15,10 @@ namespace Lostbyte.Toolkit.SaveSystem
         private readonly List<IPersistent> _subscribers = new();
         private static SaveLoader _instance;
         public static SaveLoader Instance => _instance;
-        // {
-        //     get
-        //     {
-        //         if (_instance == null)
-        //         {
 
-        //         }
-        //         return _instance;
-        //     }
-        // }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
         static void OnRuntimeMethodLoad()
         {
-            // _instance = null;
             GameObject obj = new() { name = nameof(SaveLoader) };
             _instance = obj.AddComponent<SaveLoader>();
         }
@@ -77,8 +68,18 @@ namespace Lostbyte.Toolkit.SaveSystem
                     data[p[^1]] = value;
                     return;
                 }
-                if (data.TryGetValue(p[i], out var obj) && obj is Dictionary<string, object> dict)
+                if (data.TryGetValue(p[i], out var obj))
                 {
+                    if (obj is Dictionary<string, object> dict)
+                    {
+                        data = dict;
+                        continue;
+                    }
+                }
+                else
+                {
+                    var dict = new Dictionary<string, object>();
+                    data[p[i]] = dict;
                     data = dict;
                     continue;
                 }

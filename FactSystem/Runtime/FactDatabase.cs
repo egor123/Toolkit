@@ -44,7 +44,6 @@ namespace Lostbyte.Toolkit.FactSystem
         }
         private static void Initialize()
         {
-            Debug.Log("Initializing Fact System");
             _instance = FactSettings.TryLoad().Database;
             _instance.Init();
         }
@@ -63,7 +62,6 @@ namespace Lostbyte.Toolkit.FactSystem
             _eventByGuid.Clear();
             foreach (var @event in EventStorage)
                 _eventByGuid[@event.Guid] = @event;
-            Debug.Log("Initializing Fact System" + (_instance != null));
         }
         public KeyContainer GetKey(string id) => _keysByGuid[id];
         public FactDefinition GetFact(string id) => _factByGuid[id];

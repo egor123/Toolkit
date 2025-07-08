@@ -69,9 +69,9 @@ namespace Lostbyte.Toolkit.FSM
         }
         internal static void Transition<TValue>(this IStateMachine<TValue> fsm, Enum from, Enum to) where TValue : Enum//TODO check for inner submachines
         {
-            if (from.Equals(to) && fsm.States.TryGetValue(from, out var state) && state.Enabled) return;
-            if (fsm.States.TryGetValue(from, out state) && state.Enabled) state.Exit();
-            if (fsm.States.TryGetValue(to, out state)) state.Enter();
+            if (from != null && from.Equals(to) && fsm.States.TryGetValue(from, out var state) && state.Enabled) return;
+            if (from != null && fsm.States.TryGetValue(from, out state) && state.Enabled) state.Exit();
+            if (to != null && fsm.States.TryGetValue(to, out state)) state.Enter();
         }
         public static void AddState<TValue>(this IStateMachine<TValue> fsm, TValue value, IState state) where TValue : Enum => fsm.States[value] = state;
         public static void RemoveState<TValue>(this IStateMachine<TValue> fsm, TValue value) where TValue : Enum => fsm.States.Remove(value);
@@ -110,6 +110,10 @@ namespace Lostbyte.Toolkit.FSM
         {
             // State.Value = State.GetDefaultValue();
             State.Subscribe(this.Transition);
+        }
+        protected virtual void Start()
+        {
+            this.Transition(null, StateValue);
         }
         protected virtual void OnDestroy() => State.Unsubscribe(this.Transition);
         protected virtual void Update()
