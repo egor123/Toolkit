@@ -9,7 +9,22 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
 {
     public static class FactEditorUtils
     {
-        public static FactDatabase Database => FactSettings.GetOrCreateSettings().Database;
+        internal static FactSettings GetOrCreateSettings()
+        {
+            var settings = FactSettings.TryLoad();
+            if (settings == null)
+            {
+                settings = ScriptableObject.CreateInstance<FactSettings>();
+                AssetDatabase.CreateAsset(settings, "Assets/Resources/FactSettings.asset");
+                AssetDatabase.SaveAssets();
+            }
+            return settings;
+        }
+        internal static SerializedObject GetSerializedSettings()
+        {
+            return new SerializedObject(GetOrCreateSettings());
+        }
+        public static FactDatabase Database => GetOrCreateSettings().Database;
 
         public static bool ValidateIdentifier(string name)
         {
@@ -67,6 +82,19 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
                 result = name + "_" + suffix++;
             return result;
         }
+        public static string GenerateGuid(string name)
+        {
+            string guid = GenerateValidIdentifier(name);
+            HashSet<string> guids = GetAllKeys().Select(k => k.Guid)
+                .Concat(Database.FactStorage.Select(f => f.Guid))
+                .Concat(Database.EventStorage.Select(f => f.Guid))
+                .ToHashSet();
+            int i = 1;
+            string result = guid;
+            while (guids.Contains(guid))
+                result = $"{guid}_{i++}";
+            return result;
+        }
         public static List<KeyContainer> GetAllKeys()
         {
             List<KeyContainer> all = new();
@@ -107,6 +135,7 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
                     {
                         var key = ScriptableObject.CreateInstance<KeyContainer>();
                         key.name = name;
+                        key.Guid = GenerateGuid(name);
                         key.IsSerializable = true;
                         if (overrides != null)
                         {
@@ -202,6 +231,7 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
                         {
                             var fact = ScriptableObject.CreateInstance(types[type]) as FactDefinition;
                             fact.name = name;
+                            fact.Guid = GenerateGuid(name);
                             fact.IsSerializable = IsSerializable;
                             AssetDatabase.AddObjectToAsset(fact, Database);
                             AssetDatabase.SaveAssets();
@@ -261,6 +291,7 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
                         {
                             var @event = ScriptableObject.CreateInstance<EventDefinition>();
                             @event.name = name;
+                            @event.Guid = GenerateGuid(name);
                             AssetDatabase.AddObjectToAsset(@event, Database);
                             AssetDatabase.SaveAssets();
 

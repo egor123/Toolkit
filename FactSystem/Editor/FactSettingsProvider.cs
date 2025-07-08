@@ -15,7 +15,7 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
                 label = "Fact System",
                 guiHandler = (searchContext) =>
                 {
-                    var settings = FactSettings.GetOrCreateSettings();
+                    var settings = FactEditorUtils.GetOrCreateSettings();
                     var so = new SerializedObject(settings);
                     var dbProp = so.FindProperty("m_Database");
                     EditorGUILayout.PropertyField(dbProp, new GUIContent("Fact Database"));

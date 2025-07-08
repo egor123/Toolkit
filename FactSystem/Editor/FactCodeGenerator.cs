@@ -84,9 +84,9 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
         {
             string publicName = FactUtils.MakeSafeIdentifier(key.name);
             string privateName = '_' + publicName;
-            int id = key.GetInstanceID();
+            string id = key.Guid;
             sb.AppendLine($"{indent}private static {nameof(KeyContainer)} {privateName} = null;");
-            sb.AppendLine($"{indent}public static {nameof(KeyContainer)} {publicName} = {privateName} != null ? {privateName} : {privateName} = {nameof(FactDatabase)}.{nameof(FactDatabase.Instance)}.{nameof(FactDatabase.Instance.GetKey)}({id});");
+            sb.AppendLine($"{indent}public static {nameof(KeyContainer)} {publicName} = {privateName} != null ? {privateName} : {privateName} = {nameof(FactDatabase)}.{nameof(FactDatabase.Instance)}.{nameof(FactDatabase.Instance.GetKey)}(\"{id}\");");
             foreach (var child in key.Children) GenerateKeyRef(sb, child, indent);
         }
 
@@ -96,18 +96,18 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
             string publicName = FactUtils.MakeSafeIdentifier(fact.name);
             string privateName = '_' + publicName;
             string type = $"{nameof(FactDefinition)}<{fact.GenericType}>";
-            int id = fact.GetInstanceID();
+            string id = fact.Guid;
             sb.AppendLine($"{indent}private static {type} {privateName} = null;");
-            sb.AppendLine($"{indent}public static {type} {publicName} = {privateName} != null ? {privateName} : {privateName} = ({type}) {nameof(FactDatabase)}.{nameof(FactDatabase.Instance)}.{nameof(FactDatabase.Instance.GetFact)}({id});");
+            sb.AppendLine($"{indent}public static {type} {publicName} = {privateName} != null ? {privateName} : {privateName} = ({type}) {nameof(FactDatabase)}.{nameof(FactDatabase.Instance)}.{nameof(FactDatabase.Instance.GetFact)}(\"{id}\");");
         }
         private static void GenerateEventRef(StringBuilder sb, EventDefinition @event, string indent)
         {
             string publicName = FactUtils.MakeSafeIdentifier(@event.name);
             string privateName = '_' + publicName;
             string type = nameof(EventDefinition);
-            int id = @event.GetInstanceID();
+            string id = @event.Guid;
             sb.AppendLine($"{indent}private static {type} {privateName} = null;");
-            sb.AppendLine($"{indent}public static {type} {publicName} = {privateName} != null ? {privateName} : {privateName} = ({type}) {nameof(FactDatabase)}.{nameof(FactDatabase.Instance)}.{nameof(FactDatabase.Instance.GetEvent)}({id});");
+            sb.AppendLine($"{indent}public static {type} {publicName} = {privateName} != null ? {privateName} : {privateName} = ({type}) {nameof(FactDatabase)}.{nameof(FactDatabase.Instance)}.{nameof(FactDatabase.Instance.GetEvent)}(\"{id}\");");
         }
 
         private static void GenerateEnum(StringBuilder sb, string name, List<string> values, string indent)

@@ -8,6 +8,7 @@ namespace Lostbyte.Toolkit.FactSystem
     [Serializable]
     public class KeyContainer : ScriptableObject, IKeyContainer
     {
+        [field: SerializeField] public string Guid { get; internal set; }
         public string Name => name;
         public KeyContainer Key => this;
         [field: SerializeField] public bool IsSerializable { get; internal set; }
@@ -33,7 +34,7 @@ namespace Lostbyte.Toolkit.FactSystem
 #if UNITY_EDITOR
                 return Application.isPlaying ? _factStorage.Keys : Facts;
 #else
-                return _storage.Keys;
+                return _factStorage.Keys;
 #endif
             }
         }
@@ -67,15 +68,15 @@ namespace Lostbyte.Toolkit.FactSystem
 
         public void Load(object file = null)
         {
-            Dictionary<int, object> dict = file as Dictionary<int, object> ?? new();
+            Dictionary<string, object> dict = file as Dictionary<string, object> ?? new();
             _children = null;
             foreach (var key in Children)
-                key.Load(dict.TryGetValue(key.GetInstanceID(), out var f) ? f : null);
+                key.Load(dict.TryGetValue(key.Guid, out var f) ? f : null);
             _factStorage.Clear();
             foreach (var fact in Facts)
             {
                 var wrapper = fact.GetValueWrapper();
-                wrapper.RawValue = dict.TryGetValue(fact.GetInstanceID(), out var v) ? v : ApplyValueOverride(fact, wrapper.RawValue);
+                wrapper.RawValue = dict.TryGetValue(fact.Guid, out var v) ? v : ApplyValueOverride(fact, wrapper.RawValue);
                 _factStorage[fact] = wrapper;
             }
             _eventStorage.Clear();
@@ -87,12 +88,12 @@ namespace Lostbyte.Toolkit.FactSystem
         }
         public object Save()
         {
-            Dictionary<int, object> dict = new();
+            Dictionary<string, object> dict = new();
             foreach (var key in Children)
-                dict[key.GetInstanceID()] = key.Save();
+                dict[key.Guid] = key.Save();
             foreach ((var fact, var wrapper) in _factStorage)
                 if (fact.IsSerializable)
-                    dict[fact.GetInstanceID()] = wrapper.RawValue;
+                    dict[fact.Guid] = wrapper.RawValue;
             return dict;
         }
         public void SetValue<T>(FactDefinition<T> fact, T value)

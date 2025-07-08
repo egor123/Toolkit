@@ -31,7 +31,7 @@ namespace Lostbyte.Toolkit.CustomEditor.Editor
         public class Foldout : EditorObject
         {
             public string Name;
-            public List<EditorObject> children = new List<EditorObject>();
+            public List<EditorObject> children = new();
             public Foldout(string name) { Name = name; }
             public string GetID(SerializedObject obj) => $"{obj.targetObject.GetInstanceID()}.{Name}";
             public override void Draw(SerializedObject obj)

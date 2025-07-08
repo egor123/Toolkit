@@ -76,7 +76,7 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
 
                 if (selectedItems.First() is ScriptableObject item)
                 {
-                    SerializedObject serializedObject = new(item);  
+                    SerializedObject serializedObject = new(item);
                     var iterator = serializedObject.GetIterator();
                     iterator.NextVisible(true);
 
@@ -106,6 +106,31 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
         private void BuildTreeView()
         {
             if (FactEditorUtils.Database == null || _treeView == null) return;
+
+            foreach (var f in FactEditorUtils.Database.FactStorage)
+            {
+                if (string.IsNullOrWhiteSpace(f.Guid))
+                {
+                    f.Guid = FactEditorUtils.GenerateGuid(f.name);
+                    EditorUtility.SetDirty(f);
+                }
+            }
+            foreach (var f in FactEditorUtils.GetAllKeys())
+            {
+                if (string.IsNullOrWhiteSpace(f.Guid))
+                {
+                    f.Guid = FactEditorUtils.GenerateGuid(f.name);
+                    EditorUtility.SetDirty(f);
+                }
+            }
+            foreach (var f in FactEditorUtils.Database.EventStorage)
+            {
+                if (string.IsNullOrWhiteSpace(f.Guid))
+                {
+                    f.Guid = FactEditorUtils.GenerateGuid(f.name);
+                    EditorUtility.SetDirty(f);
+                }
+            }
 
             var treeItems = new List<TreeViewItemData<object>>();
             int id = 0;
@@ -270,7 +295,7 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
         {
             if (_treeView != null && string.IsNullOrWhiteSpace(_filter) && _view == 0)
             {
-                var collapsed = new List<int>();
+                var collapsed = new List<string>();
                 var controller = _treeView.viewController;
                 bool save = false;
                 if (controller == null) return;
@@ -282,7 +307,12 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
                         {
                             save = true;
                             if (!controller.IsExpanded(id))
-                                collapsed.Add(obj.GetInstanceID());
+                            {
+                                string guid = obj.GetInstanceID().ToString();
+                                if (obj is KeyContainer k) guid = k.Guid;
+                                else if (obj is Definition d) guid = d.Guid;
+                                collapsed.Add(guid);
+                            }
                         }
                     }
                 }
@@ -303,7 +333,7 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
                     _treeView.ExpandAll();
                     return;
                 }
-                List<int> collapsed = str.Split(",").Select(int.Parse).ToList();
+                List<string> collapsed = str.Split(",").ToList();
                 var controller = _treeView.viewController;
                 if (controller == null) return;
                 foreach (var id in controller.GetAllItemIds())
@@ -311,7 +341,10 @@ namespace Lostbyte.Toolkit.FactSystem.Editor
                     var index = controller.GetIndexForId(id);
                     if (controller.GetItemForIndex(index) is ScriptableObject obj)
                     {
-                        if (collapsed.Contains(obj.GetInstanceID())) _treeView.CollapseItem(id, false);
+                        string guid = obj.GetInstanceID().ToString();
+                        if (obj is KeyContainer k) guid = k.Guid;
+                        else if (obj is Definition d) guid = d.Guid;
+                        if (collapsed.Contains(guid)) _treeView.CollapseItem(id, false);
                         else _treeView.ExpandItem(id, false);
                     }
                     else _treeView.ExpandItem(id, false);

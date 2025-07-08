@@ -19,14 +19,14 @@ namespace Lostbyte.Toolkit.FactSystem
 #if UNITY_EDITOR
                 return Application.isPlaying ? _rootKeys ??= m_rootKeys.ToList() : m_rootKeys;
 #else
-                    return _rootKeys ??= m_rootKeys.ToList();
+                return _rootKeys ??= m_rootKeys.ToList();
 #endif
             }
         }
 
-        private readonly Dictionary<int, KeyContainer> _keysById = new();
-        private readonly Dictionary<int, FactDefinition> _factById = new();
-        private readonly Dictionary<int, EventDefinition> _eventById = new();
+        private readonly Dictionary<string, KeyContainer> _keysByGuid = new();
+        private readonly Dictionary<string, FactDefinition> _factByGuid = new();
+        private readonly Dictionary<string, EventDefinition> _eventByGuid = new();
         private static FactDatabase _instance;
         public static FactDatabase Instance
         {
@@ -39,33 +39,39 @@ namespace Lostbyte.Toolkit.FactSystem
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
         static void OnRuntimeMethodLoad()
         {
+            _instance = null;
             Initialize();
         }
         private static void Initialize()
         {
-            var instance = FactSettings.GetOrCreateSettings().Database;
-            instance._rootKeys = null;
-            instance._keysById.Clear();
-            foreach (var key in instance.RootKeys)
+            Debug.Log("Initializing Fact System");
+            _instance = FactSettings.TryLoad().Database;
+            _instance.Init();
+        }
+        private void Init()
+        {
+            _rootKeys = null;
+            _keysByGuid.Clear();
+            foreach (var key in RootKeys)
             {
                 key.Load();
-                instance.AddKey(key);
+                AddKey(key);
             }
-            instance._factById.Clear();
-            foreach (var fact in instance.FactStorage)
-                instance._factById[fact.GetInstanceID()] = fact;
-            instance._eventById.Clear();
-            foreach (var @event in instance.EventStorage)
-                instance._eventById[@event.GetInstanceID()] = @event;
-            _instance = instance;
+            _factByGuid.Clear();
+            foreach (var fact in FactStorage)
+                _factByGuid[fact.Guid] = fact;
+            _eventByGuid.Clear();
+            foreach (var @event in EventStorage)
+                _eventByGuid[@event.Guid] = @event;
+            Debug.Log("Initializing Fact System" + (_instance != null));
         }
-        public KeyContainer GetKey(int id) => _keysById[id];
-        public FactDefinition GetFact(int id) => _factById[id];
-        public EventDefinition GetEvent(int id) => _eventById[id];
+        public KeyContainer GetKey(string id) => _keysByGuid[id];
+        public FactDefinition GetFact(string id) => _factByGuid[id];
+        public EventDefinition GetEvent(string id) => _eventByGuid[id];
 
         private void AddKey(KeyContainer key)
         {
-            _keysById[key.GetInstanceID()] = key;
+            _keysByGuid[key.Guid] = key;
             foreach (var child in key.Children)
                 AddKey(child);
         }
