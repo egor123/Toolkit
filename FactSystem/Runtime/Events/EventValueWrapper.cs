@@ -6,7 +6,7 @@ namespace Lostbyte.Toolkit.FactSystem
     {
         private Action OnRaise;
         public void Subscribe(Action callback) => OnRaise += callback;
-        public void Unsubscribe(Action callback) => OnRaise += callback;
+        public void Unsubscribe(Action callback) => OnRaise -= callback;
         public void Raise() => OnRaise?.Invoke();
     }
 }

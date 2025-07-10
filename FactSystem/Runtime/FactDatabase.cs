@@ -62,6 +62,7 @@ namespace Lostbyte.Toolkit.FactSystem
             _eventByGuid.Clear();
             foreach (var @event in EventStorage)
                 _eventByGuid[@event.Guid] = @event;
+            Debug.Log("Fact Database initialized");
         }
         public KeyContainer GetKey(string id) => _keysByGuid[id];
         public FactDefinition GetFact(string id) => _factByGuid[id];

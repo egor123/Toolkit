@@ -71,7 +71,9 @@ namespace Lostbyte.Toolkit.FactSystem
             Dictionary<string, object> dict = file as Dictionary<string, object> ?? new();
             _children = null;
             foreach (var key in Children)
+            {
                 key.Load(dict.TryGetValue(key.Guid, out var f) ? f : null);
+            }
             _factStorage.Clear();
             foreach (var fact in Facts)
             {
@@ -91,12 +93,47 @@ namespace Lostbyte.Toolkit.FactSystem
         {
             Dictionary<string, object> dict = new();
             foreach (var key in Children)
+            {
                 if (key.IsSerializable)
-                    dict[key.Guid] = key.Save();
+                {
+                    var data = key.Save();
+                    if (data != null)
+                    {
+                        dict[key.Guid] = data;
+                    }
+                }
+            }
             foreach ((var fact, var wrapper) in _factStorage)
+            {
                 if (fact.IsSerializable)
-                    dict[fact.Guid] = wrapper.RawValue;
-            return dict;
+                {
+                    if (TryGetValueOverride(fact, out var v))
+                    {
+                        if (!v.Wrapper?.RawValue?.Equals(wrapper.RawValue) ?? true)
+                        {
+                            dict[fact.Guid] = wrapper.RawValue;
+                        }
+                    }
+                    else if (!fact.DefaultValueRaw.Equals(wrapper.RawValue))
+                    {
+                        dict[fact.Guid] = wrapper.RawValue;
+                    }
+                }
+            }
+            return dict.Count > 0 ? dict : null;
+        }
+        private bool TryGetValueOverride(FactDefinition fact, out FactValueOverride valueOverride)
+        {
+            foreach (var v in ValueOverrides)
+            {
+                if (v.Fact == fact)
+                {
+                    valueOverride = v;
+                    return true;
+                }
+            }
+            valueOverride = default;
+            return false;
         }
         public void SetValue<T>(FactDefinition<T> fact, T value)
         {

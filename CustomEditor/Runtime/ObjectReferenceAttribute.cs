@@ -16,7 +16,20 @@ namespace Lostbyte.Toolkit.CustomEditor
 #if UNITY_EDITOR
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            property.objectReferenceValue = EditorGUI.ObjectField(position, label, property.objectReferenceValue, Type, AllowSceneObjects);
+            if (property.propertyType != SerializedPropertyType.ObjectReference)
+            {
+                EditorGUI.LabelField(position, label.text, "Use OfType with ObjectReference properties only.");
+                return;
+            }
+            UnityEngine.Object objectValue = EditorGUI.ObjectField(position, label, property.objectReferenceValue, Type, true);
+            if (objectValue != null && !Type.IsAssignableFrom(objectValue.GetType()))
+            {
+                property.objectReferenceValue = null;
+            }
+            else
+            {
+                property.objectReferenceValue = objectValue;
+            }
         }
         public override float? GetPropertyHeight(SerializedProperty property, GUIContent label)
         {

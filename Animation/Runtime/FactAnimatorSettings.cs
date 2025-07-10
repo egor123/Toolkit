@@ -80,6 +80,7 @@ namespace Lostbyte.Toolkit.Animation
         public FactParameterBehaviour(KeyContainer key, FactDefinition<TValue> fact, Action<TValue> callback = null, Action<TValue> updateCallback = null)
         {
             (Callback, UpdateCallback, _fact) = (callback, updateCallback, key.GetWrapper(fact));
+            Callback?.Invoke(_fact.Value);
         }
         public override void Enable() { if (Callback != null) _fact.Subscribe(Callback); }
         public override void Disable() { if (Callback != null) _fact.Unsubscribe(Callback); }

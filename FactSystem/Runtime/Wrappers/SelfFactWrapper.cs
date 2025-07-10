@@ -17,7 +17,7 @@ namespace Lostbyte.Toolkit.FactSystem
             {
                 if (_wrapper == null)
                 {
-                    if (Key != null && Fact != null)
+                    if (m_key != null && Key != null && Fact != null)
                         _wrapper = Key.GetWrapper(Fact);
                     else _wrapper = new FactValueWrapper<T>(default);
                 }

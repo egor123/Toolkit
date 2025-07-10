@@ -15,7 +15,8 @@ namespace Lostbyte.Toolkit.FactSystem
             get => _value;
             set
             {
-                if (_value?.Equals(value) ?? value != null) return;
+                if (_value == null && value == null) return;
+                if (value != null && _value.Equals(value)) return;
                 T old = _value;
                 _value = value;
                 OnChange?.Invoke();

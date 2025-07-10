@@ -36,25 +36,28 @@ namespace Lostbyte.Toolkit.SaveSystem
         public void Unsubscribe(IPersistent persistent) => _subscribers.Remove(persistent);
         public object GetData(string path)
         {
-            string[] p = path.Split("/");
-            Dictionary<string, object> data = _data;
-            for (int i = 0; i < p.Length; i++)
+            if (_data != null)
             {
-                if (data.TryGetValue(p[i], out var obj))
+                string[] p = path.Split("/");
+                Dictionary<string, object> data = _data;
+                for (int i = 0; i < p.Length; i++)
                 {
-                    if (i == p.Length - 1)
+                    if (data.TryGetValue(p[i], out var obj))
                     {
-                        return obj;
+                        if (i == p.Length - 1)
+                        {
+                            return obj;
+                        }
+                        else if (obj is Dictionary<string, object> dict)
+                        {
+                            data = dict;
+                            continue;
+                        }
                     }
-                    else if (obj is Dictionary<string, object> dict)
-                    {
-                        data = dict;
-                        continue;
-                    }
+                    break;
                 }
-                break;
             }
-            Debug.LogWarning($"Cannot load from \"{path}\"");
+            // Debug.LogWarning($"Cannot load from \"{path}\"");
             return null;
         }
         public void SetData(string path, object value)
@@ -99,7 +102,7 @@ namespace Lostbyte.Toolkit.SaveSystem
         }
         public void Load()
         {
-            _data = (Dictionary<string, object>)LoadFromFile(SaveFileName);
+            _data = (Dictionary<string, object>)LoadFromFile(SaveFileName) ?? new();
             _subscribers.ForEach(s => s.OnLoad());
         }
         public void DeleteFile(string filePath)
