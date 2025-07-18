@@ -105,7 +105,7 @@ namespace Lostbyte.Toolkit.FactSystem
             }
             foreach ((var fact, var wrapper) in _factStorage)
             {
-                if (fact.IsSerializable)
+                if (TryGetSerializationOverride(fact, out var so) ? so.IsSerializable : fact.IsSerializable)
                 {
                     if (TryGetValueOverride(fact, out var v))
                     {
@@ -121,6 +121,19 @@ namespace Lostbyte.Toolkit.FactSystem
                 }
             }
             return dict.Count > 0 ? dict : null;
+        }
+        private bool TryGetSerializationOverride(FactDefinition fact, out FactSerializationOverride serializationOverride)
+        {
+            foreach (var v in SerializationOverrides)
+            {
+                if (v.Fact == fact)
+                {
+                    serializationOverride = v;
+                    return true;
+                }
+            }
+            serializationOverride = default;
+            return false;
         }
         private bool TryGetValueOverride(FactDefinition fact, out FactValueOverride valueOverride)
         {

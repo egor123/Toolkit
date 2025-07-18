@@ -14,6 +14,7 @@ namespace Lostbyte.Toolkit.FactSystem
 
         private bool? _isMet = null;
         public bool IsMet => _isMet ?? m_rootNode?.Evaluate(_defaultKey) ?? false;
+        public Condition(IBoolNode rootNode = null, IKeyContainer defaultKey = null) => (m_rootNode, _defaultKey) = (rootNode, defaultKey);
         public void OnConditionChange(object _)
         {
             var newValue = m_rootNode?.Evaluate(_defaultKey) ?? false;
@@ -42,6 +43,7 @@ namespace Lostbyte.Toolkit.FactSystem
             _defaultKey = key;
             m_rootNode?.Subscribe(_defaultKey, OnConditionChange);
         }
+        public override string ToString() => m_rootNode?.ToString();
         public Condition Copy()
         {
             return new Condition() { m_rootNode = m_rootNode, _defaultKey = _defaultKey };

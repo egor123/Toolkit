@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Lostbyte.Toolkit.FactSystem
 {
+    [SelectionBase]
     public class KeyReference : MonoBehaviour, IKeyContainer
     {
         public string Name => Key.Name;

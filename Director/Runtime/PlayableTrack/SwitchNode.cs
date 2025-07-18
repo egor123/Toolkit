@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lostbyte.Toolkit.Common;
+using Lostbyte.Toolkit.FactSystem;
 
 namespace Lostbyte.Toolkit.Director
 {
     public class SwitchNode : PlayableTrackNode
     {
-        public List<SerializedTuple<float, PlayableTrackNode>> Nodes;
+        public List<SerializedTuple<Condition, PlayableTrackNode>> Nodes;
         public override IPlayableClipNodeBehaviour GetClip(PlayableTrackBehaviour track) => new SwitchNodeBehaviour(this, track);
     }
 
@@ -14,12 +15,13 @@ namespace Lostbyte.Toolkit.Director
     {
         public SwitchNodeBehaviour(SwitchNode node, PlayableTrackBehaviour track) : base(node, track)
         {
-            _nodes = Node.Nodes?.Select(n => new SerializedTuple<float, IPlayableClipNodeBehaviour>(n.Item1, n.Item2.GetClip(track))).ToList();
+            _nodes = Node.Nodes?.Select(n => new SerializedTuple<Condition, IPlayableClipNodeBehaviour>(n.Item1, n.Item2.GetClip(track))).ToList();
         }
         private IPlayableClipNodeBehaviour _nextNode;
-        private List<SerializedTuple<float, IPlayableClipNodeBehaviour>> _nodes;
+        private readonly List<SerializedTuple<Condition, IPlayableClipNodeBehaviour>> _nodes;
         public override bool IsReady => true;
-        public override bool IsFinished => _nextNode != null;
+        private bool _conditionIsMet = false;
+        public override bool IsFinished => _nodes.Count == 0 || _conditionIsMet;
         public override IPlayableClipNodeBehaviour GetNext(PlayableTrackBehaviour track) => _nextNode;
 
         public override void OnContinue() => _nextNode = null;
@@ -28,15 +30,13 @@ namespace Lostbyte.Toolkit.Director
         public override void OnStart() => _nextNode = null;
         public override void OnUpdate()
         {
-            if (_nextNode != null)
+            foreach (var node in _nodes)
             {
-                foreach (var node in _nodes)
+                if (node.Item1.IsMet && node.Item2.IsReady)
                 {
-                    if (Time >= node.Item1 && node.Item2.IsReady)
-                    {
-                        _nextNode = node.Item2;
-                        return;
-                    }
+                    _nextNode = node.Item2;
+                    _conditionIsMet = true;
+                    return;
                 }
             }
         }

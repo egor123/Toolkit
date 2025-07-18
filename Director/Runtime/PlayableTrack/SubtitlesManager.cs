@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Localization;
+using UnityEngine.Video;
 
 namespace Lostbyte.Toolkit.Director
 {
@@ -33,6 +34,21 @@ namespace Lostbyte.Toolkit.Director
             _localizedString = text;
             _d = _duration = duration;
             _localizedString.StringChanged += UpdateText;
+        }
+        public void SetFrame(string text, float time, float duration)
+        {
+            Clear();
+            var d = Mathf.Min(duration * m_maxTypingDuration, text.Length * m_charTypingDuration);
+            if (time < d)
+            {
+                OnTypeEvent?.Invoke();
+                m_tmp.text = text[..Mathf.CeilToInt(text.Length * Mathf.Clamp01(time / d))];
+            }
+            else
+            {
+                m_tmp.text = text;
+            }
+
         }
         private void UpdateText(string value)
         {

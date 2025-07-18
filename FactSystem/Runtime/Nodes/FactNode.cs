@@ -6,14 +6,14 @@ namespace Lostbyte.Toolkit.FactSystem.Nodes
     [Serializable]
     public struct FactNode : IBoolNode, IStringNode, INumericNode, IVectorNode
     {
-        public IKeyContainer Key;
+        public KeyContainer Key;
         public FactDefinition Fact;
         private IFactWrapper _wrapper;
         private readonly bool HasAnyKey(IKeyContainer defaultKey) => Key != null || defaultKey != null;
         private IFactWrapper GetWrapper(IKeyContainer defaultKey) => Key != null ? _wrapper ??= Key.Key.GetWrapper(Fact) : defaultKey?.Key.GetWrapper(Fact);
         public void Subscribe(IKeyContainer defaultKey, Action<object> callback) { if (HasAnyKey(defaultKey)) GetWrapper(defaultKey).Subscribe(callback); }
         public void Unsubscribe(IKeyContainer defaultKey, Action<object> callback) { if (HasAnyKey(defaultKey)) GetWrapper(defaultKey).Unsubscribe(callback); }
-        public override readonly string ToString() => $"{Key?.Name ?? "this"}[{Fact.name}]";
+        public override readonly string ToString() => $"{(Key != null ? Key.Name : "this")}[{Fact.name}]";
         public readonly Type ValueType
         {
             get

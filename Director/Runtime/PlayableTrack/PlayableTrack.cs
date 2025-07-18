@@ -13,7 +13,11 @@ namespace Lostbyte.Toolkit.Director
         public InteruptBehaviour InteruptBehaviour => InteruptBehaviour.Continue;
         public float Offset => 0;
         public IPlayableClipBehaviour GetClip() => new PlayableTrackBehaviour(this);
-        public void Invoke() => Director.Instance.Schedule(this, Priority);
+        public void Invoke()
+        {
+            if (Director.Instance)
+                Director.Instance.Schedule(this, Priority);
+        }
     }
     public class PlayableTrackBehaviour : PlayableBehaviour<PlayableTrack>
     {
