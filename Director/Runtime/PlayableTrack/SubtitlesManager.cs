@@ -14,6 +14,7 @@ namespace Lostbyte.Toolkit.Director
         [SerializeField] private TMP_Text m_tmp;
         [SerializeField] private float m_charTypingDuration = 0.1f;
         [SerializeField, Range(0f, 1f)] private float m_maxTypingDuration = 0.8f;
+        [SerializeField] private float m_fadeOut = 0.15f;
         [SerializeField] private AudioSource m_source;
         [SerializeField] private List<AudioClip> m_clips = new();
         [SerializeField, Range(0, 1f)] private float m_pitchVariation = 0.1f;
@@ -38,22 +39,36 @@ namespace Lostbyte.Toolkit.Director
         public void SetFrame(string text, float time, float duration)
         {
             Clear();
+            SetValues(text, time, duration);
+        }
+        private void SetValues(string text, float time, float duration)
+        {
             var d = Mathf.Min(duration * m_maxTypingDuration, text.Length * m_charTypingDuration);
             if (time < d)
             {
                 OnTypeEvent?.Invoke();
                 m_tmp.text = text[..Mathf.CeilToInt(text.Length * Mathf.Clamp01(time / d))];
+                if (m_source && m_clips.Count > 0 && !m_source.isPlaying) //FIXME check if needed
+                {
+                    m_source.clip = m_clips[Random.Range(0, m_clips.Count)];
+                    m_source.pitch = Random.Range(1f - m_pitchVariation, 1f + m_pitchVariation);
+                    m_source.Play();
+                }
             }
             else
             {
                 m_tmp.text = text;
             }
-
+            var color = m_tmp.color;
+            var fadeOut = m_fadeOut - (duration - time);
+            if (fadeOut < 0) color.a = 1f;
+            else color.a = 1f - fadeOut / m_fadeOut;
+            m_tmp.color = color;
         }
+
         private void UpdateText(string value)
         {
             _text = value;
-            _d = Mathf.Min(_duration * m_maxTypingDuration, _text.Length * m_charTypingDuration);
         }
         public void Clear()
         {
@@ -67,18 +82,7 @@ namespace Lostbyte.Toolkit.Director
             if (_text != null)
             {
                 _progress += Time.deltaTime;
-                m_tmp.text = _text[..Mathf.CeilToInt(_text.Length * Mathf.Clamp01(_progress / _d))];
-                if (_progress < _d)
-                {
-                    OnTypeEvent?.Invoke();
-                    if (m_source && m_clips.Count > 0 && !m_source.isPlaying)
-                    {
-                        m_source.clip = m_clips[Random.Range(0, m_clips.Count)];
-                        m_source.pitch = Random.Range(1f - m_pitchVariation, 1f + m_pitchVariation);
-                        m_source.Play();
-                    }
-                }
-
+                SetValues(_text, _progress, _duration);
             }
         }
     }

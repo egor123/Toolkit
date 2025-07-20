@@ -15,7 +15,7 @@ namespace Lostbyte.Toolkit.Director
     {
         public SwitchNodeBehaviour(SwitchNode node, PlayableTrackBehaviour track) : base(node, track)
         {
-            _nodes = Node.Nodes?.Select(n => new SerializedTuple<Condition, IPlayableClipNodeBehaviour>(n.Item1, n.Item2.GetClip(track))).ToList();
+            _nodes = Node.Nodes?.Select(n => new SerializedTuple<Condition, IPlayableClipNodeBehaviour>(n.Item1, n.Item2 != null ? n.Item2.GetClip(track) : null)).ToList();
         }
         private IPlayableClipNodeBehaviour _nextNode;
         private readonly List<SerializedTuple<Condition, IPlayableClipNodeBehaviour>> _nodes;
@@ -32,7 +32,7 @@ namespace Lostbyte.Toolkit.Director
         {
             foreach (var node in _nodes)
             {
-                if (node.Item1.IsMet && node.Item2.IsReady)
+                if (node.Item1.IsMet)
                 {
                     _nextNode = node.Item2;
                     _conditionIsMet = true;
