@@ -18,6 +18,7 @@ namespace Lostbyte.Toolkit.Audio
         [field: SerializeField] public AudioClip[] Clips { get; private set; }
         [field: SerializeField] public int Priority { get; private set; }
         [field: SerializeField] public bool StopActive { get; private set; }
+        [field: SerializeField] public bool AllowMultiple { get; private set; }
         [field: SerializeField, Range(0, 1)] public float Volume { get; private set; }// = 1;
         [field: SerializeField, Range(0, 1)] public float VolumeRandomization { get; private set; } //= 0;
         [field: SerializeField, Range(0, 3)] public float Pitch { get; private set; }// = 1;
@@ -34,7 +35,7 @@ namespace Lostbyte.Toolkit.Audio
     {
         [field: SerializeField] public Definition Definition { get; private set; }
 
-        public IAudioTriggerRunner CompileRunner(KeyContainer key) => new Runner(){Key=key, Definition = Definition};
+        public IAudioTriggerRunner CompileRunner(KeyContainer key) => new Runner() { Key = key, Definition = Definition };
         public class Runner : IAudioTriggerRunner
         {
             public KeyContainer Key;
