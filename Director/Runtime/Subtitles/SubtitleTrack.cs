@@ -10,9 +10,12 @@ namespace Lostbyte.Toolkit.Director
     [TrackClipType(typeof(SubtitleClip))]
     public class SubtitleTrack : TrackAsset
     {
+        public ScriptableObject Actor;
         public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
         {
-            return ScriptPlayable<SubtitleTrackMixer>.Create(graph, inputCount);
+            var mixer = ScriptPlayable<SubtitleTrackMixer>.Create(graph, inputCount);
+            mixer.GetBehaviour().Actor = Actor;
+            return mixer    ;
         }
     }
 }

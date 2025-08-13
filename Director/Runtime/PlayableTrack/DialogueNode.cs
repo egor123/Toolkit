@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Localization;
 
 namespace Lostbyte.Toolkit.Director
 {
     public class DialogueNode : PlayableTrackNode
     {
+        public ScriptableObject Actor;
         public PlayableTrackNode NextNode;
         public List<Paragraph> Paragraphs = new();
-        public override IPlayableClipNodeBehaviour GetClip(PlayableTrackBehaviour track) => new DialogueNodeBehaviour(this, track);
+        public override IPlayableClipNodeBehaviour GetClip(PlayableTrackBehaviour track) => new DialogueNodeBehaviour(this, Actor, track);
         [Serializable]
         public struct Paragraph
         {
@@ -20,9 +22,10 @@ namespace Lostbyte.Toolkit.Director
     }
     public class DialogueNodeBehaviour : PlayableClipNodeBehaviour<DialogueNode>
     {
+        private ScriptableObject _actor;
         private bool _isSet;
         private int _idx = 0;
-        public DialogueNodeBehaviour(DialogueNode node, PlayableTrackBehaviour track) : base(node, track) { }
+        public DialogueNodeBehaviour(DialogueNode node, ScriptableObject actor, PlayableTrackBehaviour track) : base(node, track) => _actor = actor;
         public override bool IsReady => true;
         public override bool IsFinished => _idx >= Node.Paragraphs.Count;
         public override IPlayableClipNodeBehaviour GetNext(PlayableTrackBehaviour track) => Node.NextNode ? Node.NextNode.GetClip(track) : null;
@@ -47,7 +50,7 @@ namespace Lostbyte.Toolkit.Director
             if (Time > paragraph.Pause && !_isSet)
             {
                 _isSet = true;
-                SubtitlesManager.Instance.Set(paragraph.String, paragraph.Duration);
+                SubtitlesManager.Instance.Set(_actor, paragraph.String.TableReference, paragraph.String.TableEntryReference, paragraph.Duration);
             }
             if (Time > paragraph.Pause + paragraph.Duration)
             {

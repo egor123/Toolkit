@@ -9,6 +9,7 @@ namespace Lostbyte.Toolkit.Director
 {
     public class SubtitleTrackMixer : PlayableBehaviour
     {
+        public ScriptableObject Actor;
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
             var manager = playerData as SubtitlesManager;
@@ -28,7 +29,7 @@ namespace Lostbyte.Toolkit.Director
                     text = GetText(iBehaviour.SubtitleText);
                 }
             }
-            manager.SetFrame(text, time, duration);//FIXME
+            manager.SetFrame(Actor, text, time, duration);//FIXME
         }
 
         private string GetText(LocalizedString text)
