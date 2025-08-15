@@ -117,6 +117,7 @@ namespace Lostbyte.Toolkit.SaveSystem
         }
         public object LoadFromFile(string filePath)
         {
+            
             string fullPath = GetFullPath(filePath);
             string savePath = fullPath + k_saveExtension;
             string tempPath = fullPath + k_tempExtension;
