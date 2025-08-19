@@ -74,18 +74,18 @@ namespace Lostbyte.Toolkit.FactSystem
             {
                 key.Load(dict.TryGetValue(key.Guid, out var f) ? f : null);
             }
-            _factStorage.Clear();
+            // _factStorage.Clear();
             foreach (var fact in Facts)
             {
-                var wrapper = fact.GetValueWrapper();
-                wrapper.RawValue = dict.TryGetValue(fact.Guid, out var v) ? v : ApplyValueOverride(fact, wrapper.RawValue);
+                var wrapper = _factStorage.TryGetValue(fact, out var w) ? w : fact.GetValueWrapper();
+                wrapper.RawValue = dict.TryGetValue(fact.Guid, out var v) ? v : ApplyValueOverride(fact, fact.DefaultValueRaw);
                 _factStorage[fact] = wrapper;
                 wrapper.Subscribe(RaiseChange);
             }
-            _eventStorage.Clear();
+            // _eventStorage.Clear();
             foreach (var @event in Events)
             {
-                var wrapper = new EventValueWrapper();
+                var wrapper = _eventStorage.TryGetValue(@event, out var w) ? w : new EventValueWrapper();
                 _eventStorage[@event] = wrapper;
             }
         }

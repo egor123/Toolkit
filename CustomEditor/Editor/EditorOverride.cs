@@ -11,7 +11,7 @@ namespace Lostbyte.Toolkit.CustomEditor.Editor
     // [UnityEditor.CustomEditor(typeof(ScriptableObject), true)]
     // public class ScriptableObjectEditorOverride : EditorOverride { }
 
-    [UnityEditor.CustomEditor(typeof(MonoBehaviour), true)]
+    // [UnityEditor.CustomEditor(typeof(MonoBehaviour), true)]
     // [CanEditMultipleObjects]
     public class MonoBehaviourEditorOverride : EditorOverride { }
 
